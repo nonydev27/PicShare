@@ -18,7 +18,7 @@ export default function Index() {
       <Text  style={styles.buttonPrimary} >Take a Photo</Text>
     </TouchableOpacity>
 
-    <TouchableOpacity activeOpacity={0.9} onPress={() => {alert("More info clicked!")}}>
+    <TouchableOpacity activeOpacity={0.9} onPress={() => router.push("https://karldjansi.netlify.app/")}>
       <Text style={styles.buttonSec} >More info</Text>
     </TouchableOpacity>
     </View>

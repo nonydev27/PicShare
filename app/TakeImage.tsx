@@ -2,8 +2,10 @@ import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useRouter } from "expo-router";
+import * as Sharing from 'expo-sharing';
 import { useRef, useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
 export default function TakeIimage() {
   const [facing, setFacing] = useState<'back' | 'front'>('back');
   const [permission, requestPermission] = useCameraPermissions();
@@ -34,9 +36,22 @@ export default function TakeIimage() {
       try {
         const options = { quality: 0.8, skipProcessing: false };
         const photo = await cameraRef.current.takePictureAsync(options);
-        
-        console.log("Photo taken successfully:", photo.uri);
-        alert("Photo captured!");
+              
+      if (!photo || !photo.uri) {
+        alert("Could not capture image data.");
+        return;
+      }
+
+      console.log("Photo taken successfully:", photo.uri);        
+
+        const isSharingAvailable = await Sharing.isAvailableAsync();
+        // alert("Photo captured!"); no more alerting, instead let's share 
+
+        if(isSharingAvailable){
+          await Sharing.shareAsync(photo.uri);
+        }else{
+          alert("Sharing is not allowed on this platform!");
+        }
       } catch (error) {
         console.error("Failed to take picture:", error);
       }
