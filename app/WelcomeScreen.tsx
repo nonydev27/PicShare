@@ -12,7 +12,7 @@ export default function Index() {
     >
       <Image source={{uri: "https://static.vecteezy.com/system/resources/previews/006/998/434/non_2x/photo-camera-icons-photo-camera-icon-design-illustration-photo-camera-simple-sign-photo-camera-logo-vector.jpg"}} style={styles.image} />
       <Text style={styles.title}>PicShare</Text>
-      <Text style={styles.description}>Pick a photo, share it!</Text>
+      <Text style={styles.description}>Take a photo, share it!</Text>
 
     <TouchableOpacity activeOpacity={0.9} onPress={() => router.push("/TakeImage")}>
       <Text  style={styles.buttonPrimary} >Take a Photo</Text>

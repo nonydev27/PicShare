@@ -1,20 +1,21 @@
-// 1. FIXED: Imported useState from 'react'
 import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { useState } from 'react';
+import { useRouter } from "expo-router";
+import { useRef, useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
-export default function ViewImage() {
+export default function TakeIimage() {
   const [facing, setFacing] = useState<'back' | 'front'>('back');
   const [permission, requestPermission] = useCameraPermissions();
+  
+  // reference to hold the Camera instance
+  const cameraRef = useRef<CameraView>(null);
+  const route = useRouter();
 
-  // Camera permissions are still loading
   if (!permission) {
     return <View style={styles.container} />;
   }
 
-  // Camera permissions are not granted yet
   if (!permission.granted) {
     return (
       <View style={styles.container}>
@@ -28,26 +29,45 @@ export default function ViewImage() {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
   }
 
+  async function takePicture() {
+    if (cameraRef.current) {
+      try {
+        const options = { quality: 0.8, skipProcessing: false };
+        const photo = await cameraRef.current.takePictureAsync(options);
+        
+        console.log("Photo taken successfully:", photo.uri);
+        alert("Photo captured!");
+      } catch (error) {
+        console.error("Failed to take picture:", error);
+      }
+    }
+  }
+
   return (
     <View style={styles.container}>
-      {/* 2. FIXED: CameraView is now the primary view filling the screen */}
-      <CameraView style={styles.camera} facing={facing}>
+      {/* Connected the cameraRef to the CameraView component */}
+      <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
         
-        {/* 3. FIXED: Top overlay row containing your styled action buttons */}
+        {/* Top Control Bar */}
         <View style={styles.btnfxn}>
-          <TouchableOpacity style={styles.btnX} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.btnX} activeOpacity={0.7} onPress={() => route.push("/WelcomeScreen")}>
             <Entypo name="cross" size={28} color="white" />
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.btnT} activeOpacity={0.7}>
-            <FontAwesome name="trash-o" size={24} color="white" />
+          <TouchableOpacity style={styles.btnT} activeOpacity={0.7} onPress={toggleCameraFacing}>
+            <FontAwesome name="refresh" size={24} color="white" /> {/* Swapped to a refresh icon for flipping */}
           </TouchableOpacity>
         </View>
 
-        {/* Bottom overlay row containing your camera control trigger */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
+        {/* Bottom Control Bar */}
+        <View style={styles.bottomContainer}>
+          {/* 5. The Shutter Button */}
+          <TouchableOpacity 
+            style={styles.shutterButton} 
+            onPress={takePicture}
+            activeOpacity={0.7}
+          >
+            <View style={styles.innerShutter} />
           </TouchableOpacity>
         </View>
 
@@ -66,16 +86,16 @@ const styles = StyleSheet.create({
   },
   btnfxn: {
     position: "absolute",
-    top: 60, // Safely pushes icons below phone notch hardware
+    top: 60, 
     left: 0,
     right: 0,
     flexDirection: "row",  
-    justifyContent: "space-between", // Pushes one button left, one button right
+    justifyContent: "space-between", 
     paddingHorizontal: 24,  
     zIndex: 10,
   },
   btnX: {
-    backgroundColor: "red",
+    backgroundColor: "rgba(0,0,0,0.5)",
     width: 50,                
     height: 50,               
     borderRadius: 25,         
@@ -83,30 +103,36 @@ const styles = StyleSheet.create({
     alignItems: "center",     
   },
   btnT: {
-    backgroundColor: "green",
+    backgroundColor: "rgba(0,0,0,0.5)",
     width: 50,                
     height: 50,               
     borderRadius: 25,         
     justifyContent: "center", 
     alignItems: "center",     
   },
-  buttonContainer: {
+  bottomContainer: {
     position: "absolute",
-    bottom: 40, // Places the flip button cleanly at the bottom edge of screen
+    bottom: 40, 
     left: 0,
     right: 0,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  button: {
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 20,
+  shutterButton: {
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    borderWidth: 4,
+    borderColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "transparent",
   },
-  text: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white',
+  innerShutter: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: "white",
   },
   message: {
     textAlign: 'center',
